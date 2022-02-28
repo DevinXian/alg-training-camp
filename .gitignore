@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# mac generated files
+.vscode
+*.dSYM
