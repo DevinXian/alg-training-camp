@@ -2,8 +2,8 @@
 #include <set>
 using namespace std;
 
-bool vis[10005];
-multiset<int> s;
+bool vis[10005]; // 删除标记列表
+multiset<int> s; // 默认为升序
 int k;
 
 void del(int p)
@@ -16,7 +16,7 @@ void del(int p)
 
   if (p == 1)
   {
-    if (vis[k++])
+    if (vis[k++]) // 如果打标记了，则删除最小成本的 p==1
     {
       cout << *s.begin() << endl;
     }
@@ -24,7 +24,7 @@ void del(int p)
   }
   else
   {
-    if (vis[k++])
+    if (vis[k++]) // 如果打标记了，则删除最大成本的
     {
       cout << *s.rbegin() << endl;
     }
@@ -46,7 +46,7 @@ int main()
     for (int i = 0; i < n; i += 1)
     {
       cin >> x;
-      vis[x] = true;
+      vis[x] = true; // 删除哪些位置，打标记
     }
 
     p = 1;
