@@ -25,10 +25,11 @@ int main()
     cin >> ch;
     sort(ch, ch + strlen(ch), cmp); // 全排列从升序开始
 
+    // while ... do 则少第一个元素
     do
     {
       cout << ch << endl;
-    } while (next_permutation(ch, ch + strlen(ch), cmp));
+    } while ((next_permutation(ch, ch + strlen(ch), cmp)));
   }
 
   return 0;

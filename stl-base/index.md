@@ -13,5 +13,5 @@
 11. `stable_sort(begin, end, compare)` 稳定排序
 12. `lower_bound/upper_bound(begin, end, x)` 二分查找第一个满足条件元素，返回元素指针
 13. `nth_element(begin, begin + k, end, compare)` 返回第 k 小元素，左边小于等于，右边大于等于；不保证其他元素有序
-14. `next_permutation(begin, end)` 字典排序的下一个排列; 循环可得到全排列
+14. `next_permutation(begin, end)` 字典排序的下一个排列; 循环可得到全排列 [1, 2, 3]-> [1, 3, 2] ... -> [3, 2, 1]，完全全排列需要从升序开始
 15. `pre_permutation(begin, end)` 字典排序的上一个排列
