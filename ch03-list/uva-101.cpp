@@ -7,6 +7,19 @@ using namespace std;
 int n;
 vector<int> block[30];
 
+void print()
+{
+  for (int i = 0; i < n; i += 1)
+  {
+    cout << i << ": ";
+    for (int j = 0; j < block[i].size(); j += 1)
+    {
+      cout << " " << block[i][j];
+    }
+    cout << endl;
+  }
+}
+
 void init(int n, vector<int> *vec)
 {
 
@@ -64,10 +77,11 @@ void moveAll(int p, int h, int q)
     block[q].push_back(block[p][i]);
   }
 
-  // 注意长度和索引的差别，小标为h的已经被移走，剩下0~h-1共h个
+  // 注意长度和索引的差别，下标为h的已经被移走，剩下0~h-1共h个
   block[p].resize(h);
 }
 
+// 经过拆分 piles 变成了组合动作
 void solve()
 {
   int a, b;      // 两个目标块
@@ -95,12 +109,12 @@ void solve()
       continue;
     }
 
-    // s1 归位
+    // a 归位
     if (s1 == "move")
     {
       goBack(ap, ah);
     }
-    // s2 归位
+    // b 归位
     if (s2 == "onto")
     {
       goBack(bp, bh);
@@ -108,21 +122,6 @@ void solve()
 
     // a及上面的块移动到b块上
     moveAll(ap, ah, bp);
-
-    print();
-  }
-}
-
-void print()
-{
-  for (int i = 0; i < n; i += 1)
-  {
-    cout << i << ": ";
-    for (int j = 0; j < block[i].size(); j += 1)
-    {
-      cout << " " << block[i][j];
-    }
-    cout << endl;
   }
 }
 
@@ -131,7 +130,6 @@ int main()
   cin >> n;
 
   init(n, block);
-  print();
   solve();
   print();
 
