@@ -10,14 +10,15 @@ void solve(string *s)
 {
   int len = s->length();
 
-  // 双向链表用户处理 [] (home/end)字符跳跃问题
+  // 双向链表存文本: 用户处理 [(Home) 和 ] (End)字符跳跃问题
   list<char> text;
   list<char>::iterator it = text.begin();
   string::iterator it2;
 
+  // 字符串便利方式很多，此处随机选用迭代器
   for (it2 = s->begin(); it2 != s->end(); it2++)
   {
-    if ((*it2) == '[')
+    if ((*it2) == '[') // char 单引号哦
     {
       it = text.begin();
     }
