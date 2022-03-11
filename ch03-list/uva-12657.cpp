@@ -1,34 +1,39 @@
 /**
  * @file uva-12657.cpp
  * 不使用 list 作为双向链表，使用数组来模拟静态双向链表实现
- * 原答案多一个头指针，本答案不需要
  */
 #include <iostream>
 using namespace std;
 
+int leftPointers[100005], rightPointers[100005];
+
 void print(int arr[], int size)
 {
-  for (int i = 0; i < size; i++)
+  for (int i = 0; i < size + 1; i++)
   {
     cout << arr[i] << " ";
-    if (i == size - 1)
+    if (i == size)
       cout << endl;
   }
 }
 
-// 数组名即 *int 指针
-void init(int data[], int left[], int right[], int size)
+void init(int size)
 {
   for (int i = 0; i < size; i += 1)
   {
-    data[i] = i + 1; // data 填充
-    left[i] = i - 1;
-    right[i] = i + 1;
+    leftPointers[i + 1] = i;
+    rightPointers[i + 1] = (i + 2) % (size + 1); // 循环: 头指针 + size
   }
 
   // 收尾相连
-  left[0] = size - 1;
-  right[size - 1] = 0;
+  leftPointers[0] = size;
+  rightPointers[0] = 1;
+}
+
+void link(int l, int r)
+{
+  rightPointers[l] = r;
+  leftPointers[r] = l;
 }
 
 /**
@@ -40,21 +45,20 @@ void init(int data[], int left[], int right[], int size)
 int main()
 {
   int size, cmdCount;
-  bool isReverse = false; // 是否翻转
   int caseNum = 1;
 
   // 每次输入总长度和命令个数
   while (cin >> size >> cmdCount)
   {
-    // data 及左右指针
-    int data[size];
-    int left[size];
-    int right[size];
-
+    bool isReverse = false; // 是否翻转
     // 初始化静态链表
-    init(data, left, right, size);
+    init(size);
 
-    // 整个调整过程中，data不动，就动指针就对了; 最后根据 index + 1 == data[index] 找对应数据
+    cout << "leftPointers:" << endl;
+    print(leftPointers, size);
+    cout << "rightPointers:" << endl;
+    print(rightPointers, size);
+
     int cmd, x, y;
 
     while (cmdCount--)
@@ -76,126 +80,105 @@ int main()
         cmd = 3 - cmd;
       }
 
-      // 存两个变量抹平 index+1 = ele 这个关系
-      int xIndex = x - 1;
-      int yIndex = y - 1;
-
-      switch (cmd)
+      // x 已经在 y 左边
+      if (cmd == 1 && x == leftPointers[y])
       {
-      case 1:
-        // x 在 y 左边
-        if (xIndex == left[yIndex])
-        {
-          continue;
-        }
+        continue;
+      }
+      // x 已经在 y 右边
+      if (cmd == 2 && x == rightPointers[y])
+      {
+        continue;
+      }
+      // x y 相邻且 x 在 y 右边, 则换到左边
+      if (cmd == 3 && rightPointers[y] == x)
+      {
+        swap(x, y); // 一定要在前面
+      }
+
+      // 预定义 x 和 y 左右位置
+      int yLeft = leftPointers[y];
+      int xLeft = leftPointers[x];
+      int yRight = rightPointers[y];
+      int xRight = rightPointers[x];
+
+      if (cmd == 1)
+      {
 
         // 1. 删除x(结合图形更好理解)
-        // x.right.left = x.left
-        // x.left.right = x.right
-        left[right[xIndex]] = left[xIndex];
-        right[left[xIndex]] = right[xIndex];
-
+        link(xLeft, xRight);
         // 2. x放入y左侧
-        // y.left.right = x
-        // x.left = y.left
-        // y.left = x
-        // x.right = y
-        right[left[yIndex]] = xIndex;
-        left[xIndex] = left[yIndex];
-        left[yIndex] = xIndex;
-        right[xIndex] = yIndex;
-        break;
-      case 2:
-        // x 在 y 右边
-        if (xIndex == right[yIndex])
-        {
-          continue;
-        }
+        link(yLeft, x);
+        link(x, y);
+      }
 
+      if (cmd == 2)
+      {
         // 1. 删除x
-        left[right[xIndex]] = left[xIndex];
-        right[left[xIndex]] = right[xIndex];
-
+        link(xLeft, xRight);
         // x放入y右侧
-        left[right[yIndex]] = xIndex;
-        right[xIndex] = right[yIndex];
-        right[yIndex] = xIndex;
-        left[xIndex] = yIndex;
-        break;
-      case 3:
-        // x在y右边，换成x在y左边，统一处理
-        if (right[yIndex] == xIndex)
-        {
-          swap(xIndex, yIndex);
-        }
+        link(y, x);
+        link(x, yRight);
+      }
 
+      if (cmd == 3)
+      {
         // 相邻 - 3次连接
         // x 在 y 左边
-        if (right[xIndex] == yIndex)
+        if (rightPointers[x] == y)
         {
-          left[right[yIndex]] = xIndex;
-          right[xIndex] = right[yIndex];
-
-          right[yIndex] = xIndex;
-          left[xIndex] = yIndex;
-
-          right[left[xIndex]] = yIndex;
-          left[yIndex] = left[xIndex];
+          // notice：如果不使用临时变量，需要注意调用顺序!!!
+          link(xLeft, y);
+          link(y, x);
+          link(x, yRight);
         }
-
-        // 不相邻 - 4次连接
-
-        // y 放在x位置 part1
-        // x.right.left = y
-        // x.left.right = y;
-
-        // x 放在y位置 part1
-        // y.left.right = x;
-        // y.right.left = x;
-
-        // y 放在x位置 part2
-        // y.right = x.right;
-        // y.left = x.left;
-
-        // x 放在y位置 part2
-        // x.right = y.right;
-        // x.left = y.left;
-        left[right[xIndex]] = yIndex;
-        right[left[xIndex]] = yIndex;
-        left[right[yIndex]] = xIndex;
-        right[left[yIndex]] = xIndex;
-
-        right[yIndex] = right[xIndex];
-        left[yIndex] = left[xIndex];
-        right[xIndex] = right[yIndex];
-        left[xIndex] = left[yIndex];
-        break;
-
-      default:
-        break;
+        else
+        {
+          // 不相邻 - 4次连接
+          link(xLeft, y);
+          link(y, xRight);
+          link(yLeft, x);
+          link(x, yRight);
+        }
       }
+
+      cout << "left:" << endl;
+      print(leftPointers, size);
+      cout << "right:" << endl;
+      print(rightPointers, size);
     }
 
-    int index = 0;
+    cout << "left:" << endl;
+    print(leftPointers, size);
+    cout << "right:" << endl;
+    print(rightPointers, size);
+
+    int next = 0; // 头指针
     long long sum = 0;
 
     for (int i = 0; i < size; i += 1)
     {
-      index = right[index];
+      next = rightPointers[next];
 
-      // 奇数位
+      cout << "i: " << i + 1 << ", ele: " << next << endl;
+      // 链表奇数位相加
       if ((i + 1) % 2 == 1)
       {
-        sum += index + 1; // index和元素关系
+        // cout << "i:" << i << ", ele:" << ele << endl;
+        sum += next;
       }
     }
 
+    cout << "before sum revered:" << sum << endl;
+
     if (isReverse && (size % 2 == 0))
     {
-      sum = (long long)(size - 1) * size / 2 - sum;
+      cout << "total: " << (long long)(size + 1) * size / 2 << endl;
+      sum = (long long)(size + 1) * size / 2 - sum;
+      cout << "after reversed, sum: " << sum << endl;
     }
 
-    cout << "Case " << caseNum++ << sum << endl;
+    cout << "Case " << caseNum++ << ": " << sum << endl;
   }
 
   return 0;
