@@ -1,9 +1,9 @@
 #include <iostream>
-#include <vector>
 #include <queue>
 
 using namespace std;
 
+// 比原答案减少一个队列
 int main()
 {
   // 总case数量
@@ -18,11 +18,9 @@ int main()
     cin >> taskCnt >> taskIndex;
 
     // 任务优先级队列
-    vector<int> tasks;
+    deque<int> tasks;
     // 任务优先级队列降序排列
-    vector<int> order;
-    // 任务优先级下标队列
-    deque<int> indexes;
+    deque<int> order;
 
     int x;
     int result = 0; // 执行分钟数
@@ -32,42 +30,46 @@ int main()
       cin >> x;
       tasks.push_back(x);
       order.push_back(x);
-      indexes.push_back(j);
     }
 
     sort(order.begin(), order.end(), greater<int>());
 
-    // 最大优先级所在 index
-    int maxWeightIndex = 0;
-    // 最大优先级
-    int maxWeight = 0;
-
-    while (!indexes.empty())
+    while (!tasks.empty())
     {
-      maxWeight = order[maxWeightIndex];
-
-      int currentIndex = indexes.front();
+      int currentTask = tasks.front();
 
       // 优先级低，往后排
-      if (tasks[currentIndex] < maxWeight)
+      if (currentTask < order.front())
       {
-        indexes.pop_front();
-        indexes.push_back(currentIndex);
+        tasks.pop_front();
+        tasks.push_back(currentTask);
+
+        // 如果是目标任务，放到最后
+        if (taskIndex == 0)
+        {
+          taskIndex = tasks.size() - 1;
+        }
+        else
+        {
+          // 不是，则向前移动
+          taskIndex -= 1;
+        }
       }
       else
       {
-        if (currentIndex == taskIndex)
+        if (taskIndex == 0)
         {
           // 结果已定
           cout << ++result << endl;
           break;
         }
-
         else
         {
-          indexes.pop_front();
+          // 优先级最高的pop掉
+          order.pop_front();
+          tasks.pop_front();
           result += 1;
-          maxWeightIndex += 1;
+          taskIndex -= 1;
         }
       }
     }
